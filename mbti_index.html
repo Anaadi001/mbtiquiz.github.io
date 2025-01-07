@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MBTI Personality Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question {
+            display: none;
+            margin: 20px 0;
+        }
+        .active {
+            display: block;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        #results {
+            display: none;
+        }
+        #canvas-container {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="section" id="personal-info">
+        <h2>Personal Information</h2>
+        <input type="text" id="name" placeholder="Your Name">
+        <input type="number" id="age" placeholder="Your Age">
+        <input type="text" id="city" placeholder="Your City">
+        <input type="text" id="goals" placeholder="What are your main goals in life?">
+        <button onclick="startQuiz()">Start Quiz</button>
+    </div>
+
+    <div class="section" id="quiz-section">
+        <div id="q1" class="question">
+            <h3>Question 1: How do you prefer to spend your free time?</h3>
+            <div class="radio-group">
+                <label><input type="radio" name="q1" value="E">Going out with friends</label>
+                <label><input type="radio" name="q1" value="I">Quiet time alone</label>
+            </div>
+        </div>
+
+        <div id="q2" class="question">
+            <h3>Question 2: When solving problems, do you prefer to:</h3>
+            <div class="radio-group">
+                <label><input type="radio" name="q2" value="S">Focus on concrete facts and details</label>
+                <label><input type="radio" name="q2" value="N">Think about patterns and possibilities</label>
+            </div>
+        </div>
+
+        <div id="q3" class="question">
+            <h3>Question 3: When making decisions, what influences you more?</h3>
+            <div class="radio-group">
+                <label><input type="radio" name="q3" value="T">Logic and objective analysis</label>
+                <label><input type="radio" name="q3" value="F">Personal values and feelings</label>
+            </div>
+        </div>
+
+        <div id="q4" class="question">
+            <h3>Question 4: How do you prefer to plan your day?</h3>
+            <div class="radio-group">
+                <label><input type="radio" name="q4" value="J">Structured and organized</label>
+                <label><input type="radio" name="q4" value="P">Flexible and spontaneous</label>
+            </div>
+        </div>
+
+        <div id="q5" class="question">
+            <h3>Question 5: In group situations, do you tend to:</h3>
+            <div class="radio-group">
+                <label><input type="radio" name="q5" value="E">Speak up and lead discussions</label>
+                <label><input type="radio" name="q5" value="I">Listen and observe</label>
+            </div>
+        </div>
+
+        <div id="q6" class="question">
+            <h3>Question 6: When learning something new, do you prefer:</h3>
+            <div class="radio-group">
+                <label><input type="radio" name="q6" value="S">Step-by-step instructions</label>
+                <label><input type="radio" name="q6" value="N">Understanding the big picture first</label>
+            </div>
+        </div>
+
+        <div id="q7" class="question">
+            <h3>Question 7: When facing a challenge, do you:</h3>
+            <div class="radio-group">
+                <label><input type="radio" name="q7" value="T">Analyze pros and cons objectively</label>
+                <label><input type="radio" name="q7" value="F">Consider how it affects people</label>
+            </div>
+        </div>
+
+        <div id="q8" class="question">
+            <h3>Question 8: How do you prefer your workspace?</h3>
+            <div class="radio-group">
+                <label><input type="radio" name="q8" value="J">Neat and organized</label>
+                <label><input type="radio" name="q8" value="P">Creative and flexible</label>
+            </div>
+        </div>
+
+        <button id="next-btn" onclick="nextQuestion()" style="display: none;">Next Question</button>
+    </div>
+
+    <div class="section" id="results">
+        <h2>Your MBTI Profile</h2>
+        <p id="mbti-result"></p>
+        <div id="canvas-container"></div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let scores = {
+            E: 0, I: 0,
+            S: 0, N: 0,
+            T: 0, F: 0,
+            J: 0, P: 0
+        };
+        
+        function startQuiz() {
+            document.getElementById('personal-info').style.display = 'none';
+            document.getElementById('quiz-section').style.display = 'block';
+            document.getElementById('next-btn').style.display = 'block';
+            showQuestion(0);
+        }
+
+        function showQuestion(n) {
+            document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
+            document.getElementById(`q${n + 1}`).classList.add('active');
+        }
+
+        function nextQuestion() {
+            const currentQuestionEl = document.querySelector('.question.active');
+            const selectedAnswer = currentQuestionEl.querySelector('input[type="radio"]:checked');
+            
+            if (!selectedAnswer) {
+                alert('Please select an answer before continuing.');
+                return;
+            }
+
+            scores[selectedAnswer.value]++;
+            currentQuestion++;
+
+            if (currentQuestion < 8) {
+                showQuestion(currentQuestion);
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-section').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            
+            const mbti = [
+                scores.E > scores.I ? 'E' : 'I',
+                scores.S > scores.N ? 'S' : 'N',
+                scores.T > scores.F ? 'T' : 'F',
+                scores.J > scores.P ? 'J' : 'P'
+            ].join('');
+            
+            document.getElementById('mbti-result').textContent = `Your MBTI type is: ${mbti}`;
+            
+            // Initialize p5.js sketch
+            new p5(sketch);
+        }
+
+        const sketch = p => {
+            p.setup = () => {
+                const canvas = p.createCanvas(600, 400);
+                canvas.parent('canvas-container');
+                p.background(255);
+                drawResults(p);
+            };
+        };
+
+        function drawResults(p) {
+            const pairs = [
+                ['E', 'I'],
+                ['S', 'N'],
+                ['T', 'F'],
+                ['J', 'P']
+            ];
+            
+            const barHeight = 40;
+            const barWidth = 400;
+            const startX = 100;
+            const startY = 50;
+            const spacing = 80;
+
+            pairs.forEach((pair, i) => {
+                const y = startY + (spacing * i);
+                
+                // Draw bar background
+                p.fill(220);
+                p.noStroke();
+                p.rect(startX, y, barWidth, barHeight);
+                
+                // Calculate position
+                const total = scores[pair[0]] + scores[pair[1]];
+                const percentage = scores[pair[0]] / total;
+                const markerX = startX + (barWidth * percentage);
+                
+                // Draw marker
+                p.fill(0, 150, 255);
+                p.circle(markerX, y + barHeight/2, 20);
+                
+                // Draw labels
+                p.fill(0);
+                p.textAlign(p.RIGHT);
+                p.text(pair[0], startX - 10, y + barHeight/2 + 5);
+                p.textAlign(p.LEFT);
+                p.text(pair[1], startX + barWidth + 10, y + barHeight/2 + 5);
+            });
+        }
+    </script>
+</body>
+</html>
