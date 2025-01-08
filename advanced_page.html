@@ -1,131 +1,180 @@
 
+<!DOCTYPE html>
 <html>
 <head>
-    <title>MBTI Personality Quiz</title>
+    <title>Personality Discovery Journey</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     <style>
+        :root {
+            --primary-color: #4F46E5;
+            --secondary-color: #7C3AED;
+            --accent-color: #F472B6;
+            --background: #F3F4F6;
+        }
+
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f5f7fa;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
             padding: 0;
+            background: var(--background);
+            color: #1F2937;
         }
 
-        .intro-section {
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 100px 20px;
             text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
             color: white;
-        }
-
-        .intro-section h1 {
-            font-size: 2.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .section {
-            background: white;
-            padding: 30px;
-            margin: 20px 0;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-        }
-
-        .section:hover {
-            transform: translateY(-5px);
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            margin: 20px 0;
+            position: relative;
             overflow: hidden;
         }
 
-        .progress {
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.1)"/></svg>') 0 0/50px 50px;
+            opacity: 0.3;
+        }
+
+        .hero-title {
+            font-size: 3.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5em;
+            margin-top: 20px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: -50px auto 0;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .start-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            background: var(--secondary-color);
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #6e8efb, #a777e3);
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
             transition: width 0.3s ease;
         }
 
-        .question {
-            display: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.3s ease;
-        }
-
-        .question.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .options-grid {
+        .recommendation-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .option-label {
-            text-align: center;
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .radio-button {
-            position: relative;
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .radio-button:hover {
-            border-color: #6e8efb;
-            background: #f0f4ff;
-        }
-
-        .radio-button input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-        }
-
-        .radio-button input[type="radio"]:checked + .radio-label {
-            color: #6e8efb;
-            font-weight: bold;
-        }
-
-        .recommendations {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-top: 30px;
         }
 
-        .recommendation-card {
+        .media-card {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
         }
 
-        .recommendation-card h3 {
-            color: #6e8efb;
-            margin-bottom: 15px;
+        .media-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .media-thumbnail {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #E5E7EB;
+        }
+
+        .media-content {
+            padding: 15px;
+        }
+
+        .media-title {
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            color: #1F2937;
+        }
+
+        .media-creator {
+            color: #6B7280;
+            font-size: 0.9em;
+            margin: 0 0 10px 0;
+        }
+
+        .media-description {
+            color: #4B5563;
+            font-size: 0.9em;
+            line-height: 1.5;
         }
 
         @keyframes slideIn {
@@ -138,90 +187,68 @@
                 transform: translateY(0);
             }
         }
-
-        .animated {
-            animation: slideIn 0.5s ease forwards;
-        }
     </style>
 </head>
 <body>
-    <div class="intro-section">
-        <h1>Know Yourself</h1>
-        <p>Discover your personality type through this interactive assessment</p>
+    <div class="hero-section">
+        <h1 class="hero-title">Discover Your True Self</h1>
+        <p class="hero-subtitle">Begin your journey of self-discovery through our personality assessment</p>
     </div>
 
     <div class="container">
-        <div class="section" id="personal-info">
+        <div class="card" id="personal-info">
             <h2>Let's Get Started</h2>
-            <input type="text" id="name" placeholder="Your Name" class="input-field">
-            <input type="number" id="age" placeholder="Your Age" class="input-field">
-            <input type="text" id="city" placeholder="Your City" class="input-field">
-            <textarea id="goals" placeholder="What are your main goals in life?" class="input-field"></textarea>
-            <button onclick="startQuiz()">Begin Journey</button>
+            <div class="input-group">
+                <label for="name">Your Name</label>
+                <input type="text" id="name" class="input-field" placeholder="Enter your name">
+            </div>
+            <div class="input-group">
+                <label for="age">Your Age</label>
+                <input type="number" id="age" class="input-field" placeholder="Enter your age">
+            </div>
+            <div class="input-group">
+                <label for="goals">Your Life Goals</label>
+                <textarea id="goals" class="input-field" placeholder="What are your main goals in life?" rows="4"></textarea>
+            </div>
+            <button class="start-btn" onclick="startQuiz()">Begin Your Journey</button>
         </div>
 
-        <div class="section" id="quiz-section" style="display: none;">
-            <div class="progress-bar">
-                <div class="progress" id="progress-indicator"></div>
-            </div>
-
-            <!-- Questions structure based on Truity's format -->
-            <div class="question" id="q1">
-                <h3>I have a lot of energy</h3>
-                <div class="options-grid">
-                    <div class="option-label">Strongly Disagree</div>
-                    <div class="option-label">Disagree</div>
-                    <div class="option-label">Neutral</div>
-                    <div class="option-label">Agree</div>
-                    <div class="option-label">Strongly Agree</div>
-                </div>
-            </div>
-            <!-- More questions following same format -->
+        <div id="quiz-section" style="display: none;">
+            <!-- Questions will be dynamically inserted here -->
         </div>
 
-        <div class="section" id="results" style="display: none;">
-            <h2>Your Personality Profile</h2>
-            <div id="mbti-result"></div>
-            <div id="canvas-container"></div>
-            <div class="recommendations">
-                <div class="recommendation-card">
-                    <h3>Recommended Books</h3>
-                    <div id="book-recommendations"></div>
-                </div>
-                <div class="recommendation-card">
-                    <h3>Music For Your Soul</h3>
-                    <div id="song-recommendations"></div>
-                </div>
+        <div id="results" style="display: none;">
+            <div class="card">
+                <h2>Your Personality Profile</h2>
+                <div id="mbti-result"></div>
+                <div id="canvas-container"></div>
+            </div>
+            
+            <div class="card">
+                <h2>Personalized Recommendations</h2>
+                <div class="recommendation-grid" id="recommendations"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Previous variables and core functions remain the same
-        
         async function getRecommendations(mbtiType, goals, age) {
-            const GEMINI_API_KEY = 'AIzaSyCXyOd97-IRuP1q_uwHn-eEQfE7FMykt5Y';
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AIzaSyCXyOd97-IRuP1q_uwHn-eEQfE7FMykt5Y}`;
+            const GEMINI_API_KEY = 'AIzaSyCrxI0GgYWldUdYfX6xj56l1lXgYFnt4VY'; // Replace with your API key
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AIzaSyCrxI0GgYWldUdYfX6xj56l1lXgYFnt4VY}`;
             
-            const promptText = `Based on this profile:
-                - MBTI Type: ${mbtiType}
-                - Age: ${age}
-                - Goals: ${goals}
-
-                Please provide:
-                1. Three book recommendations that would benefit their personal growth
-                2. Three music recommendations (songs/artists) that would resonate with their personality type
-                
-                Format the response as:
-                BOOKS:
-                - [Book 1 title] by [Author]: Brief reason
-                - [Book 2 title] by [Author]: Brief reason
-                - [Book 3 title] by [Author]: Brief reason
-
-                MUSIC:
-                - [Song/Artist 1]: Why it fits
-                - [Song/Artist 2]: Why it fits
-                - [Song/Artist 3]: Why it fits`;
+            const promptText = `Based on MBTI type ${mbtiType}, age ${age}, and goals: "${goals}", 
+                recommend 3 books and 3 songs that would resonate with this personality.
+                Format response as JSON:
+                {
+                    "books": [
+                        {"title": "Book Title", "author": "Author Name", "description": "Why this book fits", "thumbnail": "URL_placeholder"},
+                        {...}
+                    ],
+                    "songs": [
+                        {"title": "Song Title", "artist": "Artist Name", "description": "Why this song fits", "thumbnail": "URL_placeholder"},
+                        {...}
+                    ]
+                }`;
 
             try {
                 const response = await fetch(API_URL, {
@@ -235,27 +262,32 @@
                 });
 
                 const data = await response.json();
-                return data.candidates[0].content.parts[0].text;
+                const recommendations = JSON.parse(data.candidates[0].content.parts[0].text);
+                displayRecommendations(recommendations);
             } catch (error) {
-                throw new Error('Failed to get recommendations: ' + error.message);
+                console.error('Error:', error);
             }
         }
 
-        // Add automatic progression
-        document.querySelectorAll('.radio-button input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', () => {
-                setTimeout(() => {
-                    nextQuestion();
-                }, 500);
-            });
-        });
+        function displayRecommendations(recommendations) {
+            const container = document.getElementById('recommendations');
+            container.innerHTML = '';
 
-        function updateProgress(currentQuestion) {
-            const progress = (currentQuestion / 8) * 100;
-            document.getElementById('progress-indicator').style.width = `${progress}%`;
+            [...recommendations.books, ...recommendations.songs].forEach(item => {
+                container.innerHTML += `
+                    <div class="media-card">
+                        <img class="media-thumbnail" src="/api/placeholder/400/200" alt="${item.title}">
+                        <div class="media-content">
+                            <h3 class="media-title">${item.title}</h3>
+                            <p class="media-creator">By ${item.author || item.artist}</p>
+                            <p class="media-description">${item.description}</p>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
-        // Rest of the code remains similar, updated to handle both books and songs
+        // Rest of your quiz logic (startQuiz, showQuestion, etc.) remains the same
     </script>
 </body>
 </html>
